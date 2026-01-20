@@ -19,11 +19,13 @@ Each wrapper caters to a different kind of format enforcement,
 although for now only EncapsulateWrapper is implemented, where
 the response from the environment is encapsulated in some regexable syntax.
 """
+
 from abc import abstractmethod
 from typing import Any, Optional, Tuple
 
 from gem.core import ActType, Env, EnvWrapper
 from gem.wrappers.observation_wrapper import WrapperObsType
+
 
 # TODO: Refactor
 def maybe_add_new_line(text: str):
@@ -31,8 +33,10 @@ def maybe_add_new_line(text: str):
         return text + "\n"
     return text
 
+
 class FormatWrapper(EnvWrapper):
     MALFORMED_ACTION = "MALFORMED_ACTION"
+
     def __init__(self, env: Env):
         super().__init__(env)
 
@@ -42,7 +46,7 @@ class FormatWrapper(EnvWrapper):
         obs, info = self.env.reset(seed=seed)
         formatted_obs = self._get_format_instruction(obs)
         return formatted_obs, info
-    
+
     def step(
         self, raw_action: ActType
     ) -> Tuple[WrapperObsType, Any, bool, bool, dict[str, Any]]:
@@ -51,11 +55,11 @@ class FormatWrapper(EnvWrapper):
         except ValueError as e:
             enforced_action = self.MALFORMED_ACTION
         return self.env.step(enforced_action)
-    
+
     def sample_random_action(self):
         valid_action = self.env.sample_random_action()
         return self._get_format(valid_action)
-    
+
     @abstractmethod
     def _get_format(self, action: ActType) -> ActType:
         """
@@ -66,7 +70,6 @@ class FormatWrapper(EnvWrapper):
         Returns:
             ActType: The action wrapped in the expected format.
         """
-        pass
 
     @abstractmethod
     def _get_format_instruction(self, observation: WrapperObsType) -> WrapperObsType:
@@ -78,7 +81,6 @@ class FormatWrapper(EnvWrapper):
         Returns:
             WrapperObsType: The observation with the format rule added.
         """
-        pass
 
     @abstractmethod
     def _enforce_format(self, raw_action: ActType) -> ActType:
@@ -91,7 +93,7 @@ class FormatWrapper(EnvWrapper):
         Returns:
             ActType: The extracted action that conforms to the expected format.
         """
-        pass
+
 
 class EncapsulateWrapper(FormatWrapper):
     def __init__(
@@ -137,7 +139,7 @@ class EncapsulateWrapper(FormatWrapper):
             ActType: The action wrapped in the expected format.
         """
         return f"{self.prefix}{action}{self.suffix}"
-    
+
     def _get_format_instruction(self, observation: WrapperObsType) -> WrapperObsType:
         """
         Encapsulates the observation in the specified prefix and suffix.
@@ -154,7 +156,7 @@ class EncapsulateWrapper(FormatWrapper):
             "If you give multiple responses, only the last (and innermost) one will be considered. "
         )
         return new_obs
-    
+
     def _enforce_format(self, raw_action: ActType) -> ActType:
         """
         Extracts the action encapsulated within the specified prefix and suffix.

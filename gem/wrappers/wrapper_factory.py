@@ -18,8 +18,8 @@ from gem.tools.python_code_tool import PythonCodeTool
 from gem.tools.search_tool import SearchTool
 from gem.tools.tool_env_wrapper import ToolEnvWrapper
 from gem.wrappers.episode_tracking_wrapper import EpisodeTrackingWrapper
-from gem.wrappers.observation_wrapper import ObservationWrapper
 from gem.wrappers.format_wrapper import EncapsulateWrapper
+from gem.wrappers.observation_wrapper import ObservationWrapper
 
 # TODO refactor later
 
